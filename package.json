@@ -1,0 +1,31 @@
+{
+  "name": "svelte-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "start": "sirv public --no-clear",
+    "css-deploy": "npm run css-build && npm run css-postcss",
+    "css-build": "node-sass sass/main.scss public/main.css",
+    "css-postcss": "postcss --use autoprefixer --output public/main.css public/main.css"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.0.0",
+    "bulma": "^0.9.3",
+    "exports-loader": "^3.1.0",
+    "node-sass": "^7.0.1",
+    "peerjs": "^1.3.2",
+    "rollup": "^2.3.4",
+    "rollup-plugin-css-only": "^3.1.0",
+    "rollup-plugin-livereload": "^2.0.0",
+    "rollup-plugin-svelte": "^7.0.0",
+    "rollup-plugin-terser": "^7.0.0",
+    "svelte": "^3.0.0",
+    "svelte-qrcode": "^1.0.0"
+  },
+  "dependencies": {
+    "sirv-cli": "^1.0.0"
+  }
+}
