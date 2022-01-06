@@ -6,8 +6,11 @@ Transfer text and files between devices using p2p communication.
 
 - [ ] Flow (send/receive steps)
 - [ ] Copy text on receive
-- [ ] "Authentication" with a passcode
+- [ ] "Authentication": confirm ID you connect to.
 - [ ] Error handling (e.g. firewall etc)
 - [ ] FAQ, help, etc
 - [ ] Some basic theming
 - [ ] Logo etc
+- [ ] QR code scanning
+- [ ] Minor details (prevent submitting etc)
+- [ ] Responsive view

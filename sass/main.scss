@@ -1,5 +1,6 @@
 @charset "utf-8";
 
-// Customize Bulma if needed...
-
-@import "../node_modules/bulma/bulma.sass";
+// Customize if needed...
+// @todo: only use specific components
+@import "../node_modules/spectre.css/src/spectre.scss";
+@import "../node_modules/spectre.css/src/spectre-icons.scss"
