@@ -8,7 +8,7 @@ Transfer text and files between devices using p2p communication.
 - [ ] Copy text on receive
 - [ ] "Authentication": confirm ID you connect to.
 - [ ] Error handling (e.g. firewall etc)
-- [ ] FAQ, help, etc
+- [ ] FAQ, help popover, etc
 - [ ] Some basic theming
 - [ ] Logo etc
 - [ ] QR code scanning
