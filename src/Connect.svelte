@@ -10,8 +10,8 @@
     let connectionError;
 
     $: showFormError =
-        connectionState === ConnectionState.error ||
-        connectionState === ConnectionState.invalidId;
+        $connectionState === ConnectionState.error ||
+        $connectionState === ConnectionState.invalidId;
 
     let myId = (() => {
         // https://stackoverflow.com/a/27747377
@@ -38,8 +38,17 @@
             return;
         }
 
+        if (connectId.toUpperCase() === myId) {
+            connectionState.set(ConnectionState.invalidId);
+            connectionError =
+                "Enter the ID of your other device, not this one!";
+
+            return;
+        }
+
         if (connectId.length !== ID_LENGTH) {
             connectionState.set(ConnectionState.invalidId);
+            connectionError = "The ID has to be 8 characters long.";
 
             return;
         }
@@ -64,12 +73,6 @@
 
         incomingConnection.on("open", () => {
             connectionState.set(ConnectionState.connected);
-        });
-
-        incomingConnection.on("data", (data) => {
-            console.log("received data");
-            console.log(data);
-            console.log(peer);
         });
 
         incomingConnection.on("error", onDisconnect);
@@ -102,7 +105,7 @@
         </div>
         <div class="panel-body text-center">
             <p class="text-tiny text-gray">
-                Something went wrong. Refresh the page to try again.
+                Something went wrong. <a href="./">Refresh the page</a> to try again.
             </p>
         </div>
     </div>
@@ -141,7 +144,7 @@
                                     type="text"
                                     maxlength="8"
                                 />
-                                {#if connectionState === ConnectionState.loading}
+                                {#if $connectionState === ConnectionState.loading}
                                     <button
                                         class="btn btn-primary input-group-btn loading"
                                         >Connect</button
@@ -154,11 +157,11 @@
                                     </button>
                                 {/if}
                             </div>
-                            {#if connectionState === ConnectionState.invalidId}
+                            {#if $connectionState === ConnectionState.invalidId}
                                 <p class="form-input-hint">
-                                    The ID has to be 8 characters long
+                                    {connectionError}
                                 </p>
-                            {:else if connectionState === ConnectionState.error}
+                            {:else if $connectionState === ConnectionState.error}
                                 <p class="form-input-hint">
                                     {connectionError}
                                 </p>
