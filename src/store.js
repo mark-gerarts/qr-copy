@@ -2,6 +2,9 @@ import { writable } from "svelte/store";
 
 export const ConnectionState = {
     notInitialized: "notInitialized",
+    awaitingConfirm: "awaitingConfirm",
+    authorizeConnection: "authorizeConnection",
+    declined: "declined",
     loading: "loading",
     connected: "connected",
     error: "error",

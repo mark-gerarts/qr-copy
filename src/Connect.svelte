@@ -5,32 +5,26 @@
 
     const ID_LENGTH = 8;
 
+    let myId = generateRandomId();
     let connectId;
     let showFormError;
     let connectionError;
+    let incomingPeerId;
 
     $: showFormError =
         $connectionState === ConnectionState.error ||
         $connectionState === ConnectionState.invalidId;
 
-    let myId = (() => {
-        // https://stackoverflow.com/a/27747377
-        function dec2hex(dec) {
-            return dec.toString(16).padStart(2, "0");
-        }
-
-        var arr = new Uint8Array((ID_LENGTH || 40) / 2);
-        window.crypto.getRandomValues(arr);
-
-        return Array.from(arr, dec2hex).join("").toUpperCase();
-    })();
-
     let peer = new Peer(myId);
 
-    peer.on("connection", initializeConnection);
+    // This handler is triggered when another peer tries to connect to us. In
+    // this case we let the user Accept or Decline the incoming connection.
+    peer.on("connection", onIncomingConnection);
+
     peer.on("error", onPeerError);
     peer.on("disconnected", onDisconnect);
 
+    // This gets triggered when we try to connect to someone else ourselves.
     function connect(e) {
         e.preventDefault();
 
@@ -38,25 +32,45 @@
             return;
         }
 
-        if (connectId.toUpperCase() === myId) {
-            connectionState.set(ConnectionState.invalidId);
-            connectionError =
-                "Enter the ID of your other device, not this one!";
-
-            return;
-        }
-
-        if (connectId.length !== ID_LENGTH) {
-            connectionState.set(ConnectionState.invalidId);
-            connectionError = "The ID has to be 8 characters long.";
-
+        if (!validateEnteredId()) {
             return;
         }
 
         connectionState.set(ConnectionState.loading);
 
-        let connection = peer.connect(connectId.toUpperCase());
-        initializeConnection(connection);
+        let newConnection = peer.connect(connectId.toUpperCase());
+
+        addErrorHandlers(newConnection);
+
+        newConnection.on("connection", () => {
+            $connectionState = ConnectionState.awaitingConfirm;
+        });
+
+        newConnection.on("data", (data) => {
+            if (
+                typeof data !== "object" ||
+                data.type === undefined ||
+                data.type !== "ctrl_msg"
+            ) {
+                return;
+            }
+
+            if (data.data === "ack") {
+                connectionState.set(ConnectionState.connected);
+                $connection = newConnection;
+            }
+            if (data.data === "decline") {
+                connectionState.set(ConnectionState.error);
+                connectionError = "The other device declined your request.";
+            }
+        });
+    }
+
+    function onIncomingConnection(incomingConnection) {
+        incomingPeerId = incomingConnection.peer;
+        $connection = incomingConnection;
+        $connectionState = ConnectionState.authorizeConnection;
+        addErrorHandlers(incomingConnection);
     }
 
     function onPeerError(error) {
@@ -68,15 +82,60 @@
         connectionState.set(ConnectionState.disconnected);
     }
 
-    function initializeConnection(incomingConnection) {
-        connection.set(incomingConnection);
-
-        incomingConnection.on("open", () => {
-            connectionState.set(ConnectionState.connected);
-        });
-
+    function addErrorHandlers(incomingConnection) {
         incomingConnection.on("error", onDisconnect);
         incomingConnection.on("close", onDisconnect);
+    }
+
+    function acceptConnection() {
+        $connection.send({
+            type: "ctrl_msg",
+            data: "ack",
+        });
+
+        $connectionState = ConnectionState.connected;
+    }
+
+    function declineConnection() {
+        $connection.send({
+            type: "ctrl_msg",
+            data: "decline",
+        });
+
+        $connectionState = ConnectionState.notInitialized;
+        $connection = null;
+        incomingPeerId = null;
+    }
+
+    function validateEnteredId() {
+        if (!connectId || connectId.length !== ID_LENGTH) {
+            connectionState.set(ConnectionState.invalidId);
+            connectionError = "The ID has to be 8 characters long.";
+
+            return false;
+        }
+
+        if (connectId.toUpperCase() === myId) {
+            connectionState.set(ConnectionState.invalidId);
+            connectionError =
+                "Enter the ID of your other device, not this one!";
+
+            return false;
+        }
+
+        return true;
+    }
+
+    function generateRandomId() {
+        // https://stackoverflow.com/a/27747377
+        function dec2hex(dec) {
+            return dec.toString(16).padStart(2, "0");
+        }
+
+        var arr = new Uint8Array((ID_LENGTH || 40) / 2);
+        window.crypto.getRandomValues(arr);
+
+        return Array.from(arr, dec2hex).join("").toUpperCase();
     }
 </script>
 
@@ -109,6 +168,33 @@
             </p>
         </div>
     </div>
+{:else if $connectionState === ConnectionState.authorizeConnection}
+    <div class="panel">
+        <div class="panel-header text-center">
+            <figure class="avatar avatar-lg py-2">
+                <i class="icon icon-link icon-2x" />
+            </figure>
+            <h2 class="h5 py-2">Incoming connection from {incomingPeerId}</h2>
+        </div>
+        <div class="panel-body text-center py-2">
+            <div class="columns">
+                <div class="column col-md-2" />
+                <div class="column col-md-4">
+                    <button
+                        class="btn btn-lg btn-success"
+                        on:click={acceptConnection}>Accept</button
+                    >
+                </div>
+                <div class="column col-md-4">
+                    <button
+                        class="btn btn-lg btn-error"
+                        on:click={declineConnection}>Decline</button
+                    >
+                </div>
+                <div class="column col-md-2" />
+            </div>
+        </div>
+    </div>
 {:else}
     <div class="panel">
         <div class="panel-header text-center">
@@ -116,6 +202,10 @@
                 <i class="icon icon-link icon-2x" />
             </figure>
             <h2 class="h5 py-2">Connect to another device</h2>
+            <p class="text-small">
+                Open this webpage on both devices and follow the instructions
+                below on one of them.
+            </p>
         </div>
         <div class="panel-body text-center">
             <div class="columns">
@@ -144,7 +234,7 @@
                                     type="text"
                                     maxlength="8"
                                 />
-                                {#if $connectionState === ConnectionState.loading}
+                                {#if $connectionState === ConnectionState.loading || $connectionState === ConnectionState.awaitingConfirm}
                                     <button
                                         class="btn btn-primary input-group-btn loading"
                                         >Connect</button
@@ -164,6 +254,10 @@
                             {:else if $connectionState === ConnectionState.error}
                                 <p class="form-input-hint">
                                     {connectionError}
+                                </p>
+                            {:else if $connectionState === ConnectionState.awaitingConfirm}
+                                <p class="form-input-hint text-gray">
+                                    Awaiting confirmation from other device.
                                 </p>
                             {/if}
                         </div>
