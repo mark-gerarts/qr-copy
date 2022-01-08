@@ -12,3 +12,4 @@ Transfer text and files between devices using p2p communication.
 - [ ] Minor details (prevent submitting etc)
 - [ ] Responsive view
 - [ ] Analytics
+- [ ] Fix README
