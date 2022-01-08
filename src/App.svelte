@@ -9,14 +9,18 @@
     <Connect />
 
     {#if $connectionState === ConnectionState.connected}
-        <div class="panel panel-send-recv">
-            <div class="panel-body">
-                <div class="columns my-2">
-                    <div class="column col-sm-12">
+        <div class="columns">
+            <div class="column col-md-12 panel-send-recv">
+                <div class="panel py-2">
+                    <div class="panel-body">
                         <Send />
                     </div>
-                    <div class="divider-vert hide-sm" data-content="OR" />
-                    <div class="column">
+                </div>
+            </div>
+
+            <div class="column panel-send-recv">
+                <div class="panel py-2">
+                    <div class="panel-body">
                         <Receive />
                     </div>
                 </div>
@@ -28,5 +32,9 @@
 <style>
     .panel-send-recv {
         margin-top: 16px;
+    }
+
+    .panel-send-recv .panel {
+        height: 100%;
     }
 </style>
