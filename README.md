@@ -13,3 +13,5 @@ Transfer text and files between devices using p2p communication.
 - [ ] Responsive view
 - [ ] Analytics
 - [ ] Fix README
+- [ ] Add tests (https://timdeschryver.dev/blog/how-to-test-svelte-components#writing-a-test)
+- [ ] Set up "deploy" GH action
