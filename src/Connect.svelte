@@ -42,7 +42,7 @@
 
         addErrorHandlers(newConnection);
 
-        newConnection.on("connection", () => {
+        newConnection.on("open", () => {
             $connectionState = ConnectionState.awaitingConfirm;
         });
 
@@ -88,23 +88,24 @@
     }
 
     function acceptConnection() {
-        $connection.send({
-            type: "ctrl_msg",
-            data: "ack",
-        });
+        $connection.send(controlMessage("ack"));
 
         $connectionState = ConnectionState.connected;
     }
 
     function declineConnection() {
-        $connection.send({
-            type: "ctrl_msg",
-            data: "decline",
-        });
+        $connection.send(controlMessage("decline"));
 
         $connectionState = ConnectionState.notInitialized;
         $connection = null;
         incomingPeerId = null;
+    }
+
+    function controlMessage(data) {
+        return {
+            type: "ctrl_msg",
+            data: data,
+        };
     }
 
     function validateEnteredId() {
@@ -202,69 +203,86 @@
                 <i class="icon icon-link icon-2x" />
             </figure>
             <h2 class="h5 py-2">Connect to another device</h2>
-            <p class="text-small">
-                Open this webpage on both devices and follow the instructions
-                below on one of them.
-            </p>
         </div>
-        <div class="panel-body text-center">
+        <div class="panel-body py-2">
             <div class="columns">
-                <div class="column">
-                    <p>
-                        Scan this QR code on your other device, or enter your ID
-                        manually.
-                    </p>
-                    <div class="id-box">{myId}</div>
-                    <QrCode value={myId} />
-                </div>
-                <div class="divider-vert" data-content="OR" />
-                <div class="column">
-                    <p>
-                        Or scan your other device's QR code (todo) or enter its
-                        ID manually.
-                    </p>
-                    <form class="flex-centered" on:submit={connect}>
-                        <div class="form-group" class:has-error={showFormError}>
-                            <div class="input-group">
-                                <input
-                                    class="form-input"
-                                    placeholder="E.g. FC15C325"
-                                    bind:value={connectId}
-                                    class:is-error={showFormError}
-                                    type="text"
-                                    maxlength="8"
-                                />
-                                {#if $connectionState === ConnectionState.loading || $connectionState === ConnectionState.awaitingConfirm}
-                                    <button
-                                        class="btn btn-primary input-group-btn loading"
-                                        >Connect</button
+                <div class="column col-10 col-mx-auto">
+                    <div class="columns">
+                        <div class="column col-6 col-sm-12 text-center">
+                            <p>
+                                Open this webpage on both devices. Connect to
+                                your other device by scanning its QR code or
+                                entering its ID manually.
+                            </p>
+                            <button class="btn btn-lg btn-primary"
+                                ><i class="icon icon-photo" /> Scan QR code</button
+                            >
+                            <div
+                                class="divider text-center id-input-divider"
+                                data-content="OR"
+                            />
+                            <form on:submit={connect}>
+                                <div
+                                    class="form-group"
+                                    class:has-error={showFormError}
+                                >
+                                    <label
+                                        class="form-label"
+                                        for="manualIdInput"
+                                        >Enter the device ID manually</label
                                     >
-                                {:else}
-                                    <button
-                                        class="btn btn-primary input-group-btn"
-                                    >
-                                        Connect
-                                    </button>
-                                {/if}
-                            </div>
-                            {#if $connectionState === ConnectionState.invalidId}
-                                <p class="form-input-hint">
-                                    {connectionError}
-                                </p>
-                            {:else if $connectionState === ConnectionState.error}
-                                <p class="form-input-hint">
-                                    {connectionError}
-                                </p>
-                            {:else if $connectionState === ConnectionState.awaitingConfirm}
-                                <p class="form-input-hint text-gray">
-                                    Awaiting confirmation from other device.
-                                </p>
-                            {/if}
+                                    <div class="input-group">
+                                        <input
+                                            class="form-input"
+                                            placeholder="E.g. FC15C325"
+                                            bind:value={connectId}
+                                            class:is-error={showFormError}
+                                            type="text"
+                                            maxlength="8"
+                                            id="manualIdInput"
+                                        />
+                                        {#if $connectionState === ConnectionState.loading || $connectionState === ConnectionState.awaitingConfirm}
+                                            <button
+                                                class="btn btn-primary input-group-btn loading"
+                                                >Connect</button
+                                            >
+                                        {:else}
+                                            <button
+                                                class="btn btn-primary input-group-btn"
+                                            >
+                                                Connect
+                                            </button>
+                                        {/if}
+                                    </div>
+                                    {#if $connectionState === ConnectionState.invalidId}
+                                        <p class="form-input-hint">
+                                            {connectionError}
+                                        </p>
+                                    {:else if $connectionState === ConnectionState.error}
+                                        <p class="form-input-hint">
+                                            {connectionError}
+                                        </p>
+                                    {:else if $connectionState === ConnectionState.awaitingConfirm}
+                                        <p class="form-input-hint text-gray">
+                                            Awaiting confirmation from other
+                                            device.
+                                        </p>
+                                    {/if}
+                                </div>
+                            </form>
                         </div>
-                    </form>
+                        <div
+                            class="column col-4 col-sm-12 col-ml-auto text-center"
+                        >
+                            <div class="spacer-y show-sm" />
+                            <div class="id-box">{myId}</div>
+                            <QrCode value={myId} />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+        <div class="panel-footer" />
     </div>
 {/if}
 
@@ -276,5 +294,13 @@
         font-size: 1.5rem;
         letter-spacing: 0.2rem;
         color: #000000;
+    }
+
+    .id-input-divider {
+        margin: 1.5rem 0;
+    }
+
+    .spacer-y {
+        margin-top: 2rem;
     }
 </style>

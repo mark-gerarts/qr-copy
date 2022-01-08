@@ -17,12 +17,7 @@
 
     // Adapted from https://stackoverflow.com/a/48542290
     function copyReceivedData() {
-        var dummy = document.createElement("textarea");
-        document.body.appendChild(dummy);
-        dummy.value = receivedData;
-        dummy.select();
         navigator.clipboard.writeText(receivedData);
-        document.body.removeChild(dummy);
 
         copied = true;
         setTimeout(() => {
