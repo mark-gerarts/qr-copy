@@ -15,6 +15,7 @@
     "@rollup/plugin-node-resolve": "^11.0.0",
     "autoprefixer": "^10.4.1",
     "exports-loader": "^3.1.0",
+    "html5-qrcode": "^2.1.6",
     "node-sass": "^7.0.1",
     "peerjs": "^1.3.2",
     "postcss": "^8.4.5",

@@ -15,3 +15,5 @@ export const ConnectionState = {
 export const connectionState = writable(ConnectionState.notInitialized);
 
 export const connection = writable(null);
+
+export const connectionError = writable('');

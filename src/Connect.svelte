@@ -1,19 +1,19 @@
 <script>
     import Peer from "peerjs";
     import QrCode from "svelte-qrcode";
-    import { connection, connectionState, ConnectionState } from "./store.js";
+    import {
+        connectionError,
+        connection,
+        connectionState,
+        ConnectionState,
+    } from "./store.js";
+    import IdInput from "./IdInput.svelte";
 
     const ID_LENGTH = 8;
 
     let myId = generateRandomId();
     let connectId;
-    let showFormError;
-    let connectionError;
     let incomingPeerId;
-
-    $: showFormError =
-        $connectionState === ConnectionState.error ||
-        $connectionState === ConnectionState.invalidId;
 
     let peer = new Peer(myId);
 
@@ -26,17 +26,9 @@
 
     // This gets triggered when we try to connect to someone else ourselves.
     function connect(e) {
-        e.preventDefault();
+        connectId = e.detail.id;
 
-        if (connectionState === ConnectionState.loading) {
-            return;
-        }
-
-        if (!validateEnteredId()) {
-            return;
-        }
-
-        connectionState.set(ConnectionState.loading);
+        $connectionState = ConnectionState.loading;
 
         let newConnection = peer.connect(connectId.toUpperCase());
 
@@ -56,12 +48,12 @@
             }
 
             if (data.data === "ack") {
-                connectionState.set(ConnectionState.connected);
+                $connectionState = ConnectionState.connected;
                 $connection = newConnection;
             }
             if (data.data === "decline") {
-                connectionState.set(ConnectionState.error);
-                connectionError = "The other device declined your request.";
+                $connectionState = ConnectionState.error;
+                $connectionError = "The other device declined your request.";
             }
         });
     }
@@ -74,12 +66,12 @@
     }
 
     function onPeerError(error) {
-        connectionState.set(ConnectionState.error);
-        connectionError = error;
+        $connectionState = ConnectionState.error;
+        $connectionError = error;
     }
 
     function onDisconnect() {
-        connectionState.set(ConnectionState.disconnected);
+        $connectionState = ConnectionState.disconnected;
     }
 
     function addErrorHandlers(incomingConnection) {
@@ -106,25 +98,6 @@
             type: "ctrl_msg",
             data: data,
         };
-    }
-
-    function validateEnteredId() {
-        if (!connectId || connectId.length !== ID_LENGTH) {
-            connectionState.set(ConnectionState.invalidId);
-            connectionError = "The ID has to be 8 characters long.";
-
-            return false;
-        }
-
-        if (connectId.toUpperCase() === myId) {
-            connectionState.set(ConnectionState.invalidId);
-            connectionError =
-                "Enter the ID of your other device, not this one!";
-
-            return false;
-        }
-
-        return true;
     }
 
     function generateRandomId() {
@@ -206,7 +179,7 @@
         </div>
         <div class="panel-body py-2">
             <div class="columns">
-                <div class="column col-10 col-mx-auto">
+                <div class="column col-md-12 col-10 col-mx-auto">
                     <div class="columns">
                         <div class="column col-6 col-sm-12 text-center">
                             <p>
@@ -214,62 +187,7 @@
                                 your other device by scanning its QR code or
                                 entering its ID manually.
                             </p>
-                            <button class="btn btn-lg btn-primary"
-                                ><i class="icon icon-photo" /> Scan QR code</button
-                            >
-                            <div
-                                class="divider text-center id-input-divider"
-                                data-content="OR"
-                            />
-                            <form on:submit={connect}>
-                                <div
-                                    class="form-group"
-                                    class:has-error={showFormError}
-                                >
-                                    <label
-                                        class="form-label"
-                                        for="manualIdInput"
-                                        >Enter the device ID manually</label
-                                    >
-                                    <div class="input-group">
-                                        <input
-                                            class="form-input"
-                                            placeholder="E.g. FC15C325"
-                                            bind:value={connectId}
-                                            class:is-error={showFormError}
-                                            type="text"
-                                            maxlength="8"
-                                            id="manualIdInput"
-                                        />
-                                        {#if $connectionState === ConnectionState.loading || $connectionState === ConnectionState.awaitingConfirm}
-                                            <button
-                                                class="btn btn-primary input-group-btn loading"
-                                                >Connect</button
-                                            >
-                                        {:else}
-                                            <button
-                                                class="btn btn-primary input-group-btn"
-                                            >
-                                                Connect
-                                            </button>
-                                        {/if}
-                                    </div>
-                                    {#if $connectionState === ConnectionState.invalidId}
-                                        <p class="form-input-hint">
-                                            {connectionError}
-                                        </p>
-                                    {:else if $connectionState === ConnectionState.error}
-                                        <p class="form-input-hint">
-                                            {connectionError}
-                                        </p>
-                                    {:else if $connectionState === ConnectionState.awaitingConfirm}
-                                        <p class="form-input-hint text-gray">
-                                            Awaiting confirmation from other
-                                            device.
-                                        </p>
-                                    {/if}
-                                </div>
-                            </form>
+                            <IdInput bind:myId on:idInputReceived={connect} />
                         </div>
                         <div
                             class="column col-4 col-sm-12 col-ml-auto text-center"
@@ -294,10 +212,6 @@
         font-size: 1.5rem;
         letter-spacing: 0.2rem;
         color: #000000;
-    }
-
-    .id-input-divider {
-        margin: 1.5rem 0;
     }
 
     .spacer-y {

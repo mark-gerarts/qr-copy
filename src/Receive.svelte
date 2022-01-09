@@ -15,7 +15,6 @@
         });
     });
 
-    // Adapted from https://stackoverflow.com/a/48542290
     function copyReceivedData() {
         navigator.clipboard.writeText(receivedData);
 
@@ -24,6 +23,7 @@
             copied = false;
         }, 300);
     }
+
 </script>
 
 <h2 class="text-center">Receive data</h2>
