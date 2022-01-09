@@ -123,7 +123,7 @@
         </div>
         <div class="panel-body text-center">
             <p class="text-tiny text-gray">
-                Your ID: {myId}. Connected to: ABCD1234. Refresh the page to
+                Your ID: {myId}. Connected to: {connectId ? connectId : incomingPeerId}. Refresh the page to
                 connect to a new device.
             </p>
         </div>
