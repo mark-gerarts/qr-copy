@@ -9,10 +9,11 @@
     } from "./store.js";
     import IdInput from "./IdInput.svelte";
 
+    const BASE_URL = "https://qrcopy.de";
     const ID_LENGTH = 8;
 
     let myId = generateRandomId();
-    let connectId;
+    let connectId = getIdFromUrl();
     let incomingPeerId;
 
     let peer = new Peer(myId);
@@ -24,10 +25,17 @@
     peer.on("error", onPeerError);
     peer.on("disconnected", onDisconnect);
 
-    // This gets triggered when we try to connect to someone else ourselves.
-    function connect(e) {
-        connectId = e.detail.id;
+    // Immediately try to connect if a connectId is given (in the URL, from a
+    // scanned QR code).
+    peer.on("open", connectIfIdProvided);
 
+    // This gets triggered when we try to connect to someone else ourselves.
+    function idInputReceived(e) {
+        connectId = e.detail.id;
+        connect(connectId);
+    }
+
+    function connect(connectId) {
         $connectionState = ConnectionState.loading;
 
         let newConnection = peer.connect(connectId.toUpperCase());
@@ -74,6 +82,12 @@
         $connectionState = ConnectionState.disconnected;
     }
 
+    function connectIfIdProvided() {
+        if (connectId) {
+            connect(connectId);
+        }
+    }
+
     function addErrorHandlers(incomingConnection) {
         incomingConnection.on("error", onDisconnect);
         incomingConnection.on("close", onDisconnect);
@@ -100,6 +114,10 @@
         };
     }
 
+    function buildConnectUrl() {
+        return BASE_URL + "/?q=" + myId;
+    }
+
     function generateRandomId() {
         // https://stackoverflow.com/a/27747377
         function dec2hex(dec) {
@@ -110,6 +128,13 @@
         window.crypto.getRandomValues(arr);
 
         return Array.from(arr, dec2hex).join("").toUpperCase();
+    }
+
+    function getIdFromUrl() {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        const params = Object.fromEntries(urlSearchParams.entries());
+
+        return params.q;
     }
 </script>
 
@@ -123,8 +148,10 @@
         </div>
         <div class="panel-body text-center">
             <p class="text-tiny text-gray">
-                Your ID: {myId}. Connected to: {connectId ? connectId : incomingPeerId}. Refresh the page to
-                connect to a new device.
+                Your ID: {myId}. Connected to: {connectId
+                    ? connectId
+                    : incomingPeerId}. Refresh the page to connect to a new
+                device.
             </p>
         </div>
     </div>
@@ -183,18 +210,21 @@
                     <div class="columns">
                         <div class="column col-6 col-sm-12 text-center">
                             <p>
-                                Open this webpage on both devices. Connect to
-                                your other device by scanning its QR code or
-                                entering its ID manually.
+                                Use your other device to scan the QR code, or
+                                open this webpage on both devices and enter the
+                                other device's ID manually.
                             </p>
-                            <IdInput bind:myId on:idInputReceived={connect} />
+                            <IdInput
+                                bind:myId
+                                on:idInputReceived={idInputReceived}
+                            />
                         </div>
                         <div
                             class="column col-4 col-sm-12 col-ml-auto text-center"
                         >
                             <div class="spacer-y show-sm" />
                             <div class="id-box">{myId}</div>
-                            <QrCode value={myId} />
+                            <QrCode value={buildConnectUrl()} />
                         </div>
                     </div>
                 </div>

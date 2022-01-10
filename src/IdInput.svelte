@@ -78,13 +78,12 @@
         const qrCodeSuccessCallback = (decodedText) => {
             html5QrCode.stop().then(() => {
                 openModal = false;
-                connectId = decodedText;
+                connectId = parseConnectId(decodedText);
                 onSubmit(null);
             });
         };
 
         const startFailedCallback = (errorMessage) => {
-            console.log(errorMessage);
             scanningFailed = true;
         };
 
@@ -94,6 +93,10 @@
         html5QrCode
             .start(cameraConfig, config, qrCodeSuccessCallback)
             .catch(startFailedCallback);
+    }
+
+    function parseConnectId(text) {
+        return /(?!q=)\w{8}/.exec(text)[0];
     }
 
     function validateEnteredId() {
@@ -201,6 +204,6 @@
     }
 
     .btn-scan img {
-        max-height: 100%;
+        height: 24px;
     }
 </style>
