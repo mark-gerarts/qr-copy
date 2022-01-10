@@ -4,6 +4,7 @@ Transfer text and files between devices using p2p communication.
 
 ## Todo's
 
+- [ ] Make QR code an URL that automaticaly connects
 - [ ] Transfer files
 - [ ] Fix copy to clipboard feedback on mobile
 - [ ] FAQ, help popover, etc
