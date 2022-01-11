@@ -3,7 +3,8 @@
     import { fade } from "svelte/transition";
 
     let copied = false;
-    let receivedData = "You have not received any data (yet!)";
+    let receivedText;
+    let receivedFiles = [];
 
     connectionState.subscribe((value) => {
         if (value !== ConnectionState.connected) {
@@ -11,37 +12,79 @@
         }
 
         $connection.on("data", (data) => {
-            receivedData = data;
+            if (data.type === "text") {
+                receivedText = data.data;
+            }
+            if (data.type === "files") {
+                receivedFiles = data.data.map(parseFileData);
+            }
         });
     });
 
-    function copyReceivedData() {
-        navigator.clipboard.writeText(receivedData);
+    function parseFileData(file) {
+        return {
+            blob: new Blob([new Uint8Array(file.blob)], {
+                type: file.type,
+            }),
+            type: file.type,
+            name: file.name,
+        };
+    }
+
+    function copyReceivedText() {
+        navigator.clipboard.writeText(receivedText);
 
         copied = true;
         setTimeout(() => {
             copied = false;
         }, 300);
     }
-
 </script>
 
-<h2 class="text-center">Receive data</h2>
-<p class="text-center">Data you receive will appear here.</p>
-{#if receivedData}
+<h2 class="text-center">Receive</h2>
+
+<h5>
+    <figure class="avatar text-center bg-primary py-1">
+        <i class="icon icon-download" />
+    </figure>
+    Files
+</h5>
+
+{#if receivedFiles.length > 0}
+    <p>
+        {#each receivedFiles as file}
+            <a
+                href={URL.createObjectURL(file.blob)}
+                download={file.name}
+                class="chip">{file.name}</a
+            >
+        {/each}
+    </p>
+{:else}
+    <p class="text-gray offset-avatar">Files you receive will appear here.</p>
+{/if}
+
+<h5>
+    <figure class="avatar text-center bg-primary py-1">
+        <i class="icon icon-mail" />
+    </figure>
+    Messages
+</h5>
+
+{#if receivedText}
     <div class="receive-container-wrapper">
         {#if copied}
             <span class="copy-ack text-tiny" out:fade>Copied!</span>
         {/if}
-        <pre class="code receive-wrapper" on:click={copyReceivedData}><code
+        <pre class="code receive-wrapper" on:click={copyReceivedText}><code
                 class="p-relative"
                 ><span class="copy-wrapper text-gray"
                     ><i class="icon icon-copy" /></span
-                >{receivedData}
+                >{receivedText}
     </code></pre>
     </div>
 {:else}
-    <p class="text-center text-gray">You have not received any data (yet!)</p>
+    <p class="text-gray">You have not received any data yet.</p>
 {/if}
 
 <style>
