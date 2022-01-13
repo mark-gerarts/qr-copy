@@ -26,11 +26,9 @@ jobs:
           git remote update
           git fetch --all
 
-          mv public public.new
           git checkout gh-pages
-          rm -rf public/*
-          cp -r public.new/* public/
-          rm -rf public.new
+          cp docs/CNAME public/
+          rm -rf docs
           mv public docs
 
           git add docs
