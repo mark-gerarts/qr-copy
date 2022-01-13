@@ -142,7 +142,7 @@
                 maxlength="8"
                 id="manualIdInput"
             />
-            {#if $connectionState === ConnectionState.loading || $connectionState === ConnectionState.awaitingConfirm}
+            {#if inputDisabled}
                 <button class="btn btn-primary input-group-btn loading"
                     >Connect</button
                 >
