@@ -23,7 +23,7 @@ $ npm run dev
 Build the CSS:
 
 ```console
-npm run css-deploy
+$ npm run css-deploy
 ```
 
 Other useful commands can be found in `package.json`.
