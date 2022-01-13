@@ -1,0 +1,43 @@
+name: Deploy to Github Pages
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git repository
+        uses: actions/checkout@v2
+      - name: Use Node.js '14.x'
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+      - run: npm ci
+      - run: npm run css-deploy
+      - run: npm run build
+      - name: Commit files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          git remote update
+          git fetch --all
+
+          mv public public.new
+          git checkout gh-pages
+          rm -rf public/*
+          cp -r public.new/* public/
+          rm -rf public.new
+          mv public docs
+
+          git add docs
+
+          git commit -m "Build gh-pages"
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
