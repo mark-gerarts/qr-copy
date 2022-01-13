@@ -1,13 +1,37 @@
 # QR+Copy
 
+![QR+Copy logo](public/qr-copy-resized.png)
+
 Transfer text and files between devices using p2p communication.
 
-## Todo's
+Live application: https://qrcopy.de
 
-- [ ] FAQ, help popover, etc
-- [ ] Minor details (prevent submitting etc)
-- [ ] Responsive view
-- [ ] Fix README
-- [ ] Add tests (https://timdeschryver.dev/blog/how-to-test-svelte-components#writing-a-test)
+## Development
+
+Installation:
+
+```console
+$ npm ci
+```
+
+Run a local development server with live reload:
+
+```console
+$ npm run dev
+```
+
+Build the CSS:
+
+```console
+npm run css-deploy
+```
+
+Other useful commands can be found in `package.json`.
+
+## Open issues
+
+- [ ] Better error handling when connection fails
+- [ ] ...or even automatic reconnect if possible
+- [ ] Tests
 - [ ] Only start sending text after a small delay
 - [ ] Fix connecting on iphone :(

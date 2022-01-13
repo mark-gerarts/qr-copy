@@ -20,7 +20,7 @@
         </section>
         <section class="navbar-center">
             <a href="../">
-                <img src="./qr-copy-resized.png" alt="QR+Copy logo" title="QR+Copy">
+                <img src="../qr-copy-resized.png" alt="QR+Copy logo" title="QR+Copy">
             </a>
         </section>
         <section class="navbar-section">
@@ -36,29 +36,56 @@
         <h1 class="text-primary">FAQ</h1>
 
         <h2>I can't make a connection, what is going wrong?</h2>
-        <p>Some explanation here</p>
+        <p>There are multiple things that could be going wrong:</p>
+
         <ul>
-            <li>Wrong ID</li>
-            <li>Firewall</li>
-            <li>Browser addon (ublock)</li>
-            <li>Unsupported browser</li>
-            <li>See PeerJS</li>
+            <li>If you are connecting manually, you might have entered the
+                <strong>wrong ID</strong>. Make sure the ID matches that of your
+                other device.
+            </li>
+            <li>P2P communication is set up using 443. If you have a
+                <strong>firewall</strong> enabled, make sure this port is not blocked.
+            </li>
+            <li>Some <strong>browser addons</strong> might block P2P connection,
+                primarily adblockers.
+                Try disabling all of your addons.</li>
+            <li>You might be using an <strong>unsupported browser</strong>. For
+                a list of supported browsers, see <a href="https://caniuse.com/rtcpeerconnection">this page</a>.</li>
+            <li>You could be behind a <strong>symmetric NAT</strong>. In this
+                case there is not much you can do.</li>
         </ul>
 
-        <h2 id="work">How does this work?</h2>
-        <p>Some explanation here</p>
+        <p>If you think none of the above apply, consider <a href="/issues">reporting an issue</a>.</p>
 
-        <h2 id="security">Is this secure?</h2>
-        <p>Some explanation here.</p>
+        <h2 id="work">How does this work?</h2>
+        <p>Ultimately this application is based on <a href="https://webrtc.org/">WebRTC</a>, a web standard for
+            real-time
+            communication between devices. We use <a href="https://peerjs.com/">PeerJS</a>, which provides a library to
+            easily implement P2P communication <em>and</em> provides a server to
+            initialize the connection. If you enjoy this application, consider <a
+                href="https://peerjs.com/peerserver.html">donating to PeerJS</a>!</p>
 
         <h2 id="usecases">What are some example use cases?</h2>
-        <p>Some explanation here.</p>
+        <p>I primarily made this application to quickly transfer files and text
+            to and from my iPhone without installing any applications like iTunes,
+            but it's useful for sending files between two phones as well. If you
+            have any other specific use cases, I'd love to learn about them!</p>
 
         <h2>How is this built?</h2>
-        <p>PeerJS/WebRTC, Svelte, SpectreCSS</p>
+
+        <p>The application is made using the following non-inclusive list of
+            technologies:</p>
+
+        <ul>
+            <li><a href="https://webrtc.org/">WebRTC</a></li>
+            <li><a href="https://peerjs.com/">PeerJS</a></li>
+            <li><a href="https://svelte.dev/">Svelte</a></li>
+            <li><a href="https://picturepan2.github.io/spectre/">Spectre.CSS</a></li>
+        </ul>
+
         <p>
-            "Scan QR code"-icon made by <a href="https://www.flaticon.com/authors/nadiinko"
-                title="Nadiinko">Nadiinko</a>
+            The "Scan QR code"-icon, used in the logo and QR-code input, is made by <a
+                href="https://www.flaticon.com/authors/nadiinko" title="Nadiinko">Nadiinko</a>
             from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
         </p>
     </header>
