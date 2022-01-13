@@ -24,6 +24,10 @@ body {
     padding: 15px 0;
 }
 
+.navbar-center a {
+    height: 42px;
+}
+
 // Customize if needed...
 // @todo: only use specific components
 @import "../node_modules/spectre.css/src/spectre.scss";

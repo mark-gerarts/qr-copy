@@ -15,6 +15,12 @@
 		// Workaround for an issue with PeerJS.
 		// See https://github.com/peers/peerjs/issues/753.
 		var parcelRequire;
+
+		// We're not interested in query parameters.
+		// @see https://github.com/arp242/goatcounter/issues/268
+		window.goatcounter = {
+			path: location.pathname || '/',
+		}
 	</script>
 
 	<script defer src="/build/bundle.js"></script>
