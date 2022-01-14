@@ -14,6 +14,7 @@
     let showFormError;
     let openModal = false;
     let scanningFailed = false;
+    let html5QrCode;
 
     const dispatch = createEventDispatcher();
 
@@ -56,7 +57,7 @@
 
     function closeModalOnEscape(event) {
         if (event.keyCode === 27) {
-            openModal = false;
+            closeModal();
         }
     }
 
@@ -66,21 +67,19 @@
         }
 
         if (!event.target.closest(".in-modal")) {
-            openModal = false;
+            closeModal();
         }
     }
 
     function initScanner() {
-        const html5QrCode = new Html5Qrcode("reader", {
+        html5QrCode = new Html5Qrcode("reader", {
             formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
         });
 
         const qrCodeSuccessCallback = (decodedText) => {
-            html5QrCode.stop().then(() => {
-                openModal = false;
-                connectId = parseConnectId(decodedText);
-                onSubmit(null);
-            });
+            closeModal();
+            connectId = parseConnectId(decodedText);
+            onSubmit(null);
         };
 
         const startFailedCallback = (errorMessage) => {
@@ -93,6 +92,13 @@
         html5QrCode
             .start(cameraConfig, config, qrCodeSuccessCallback)
             .catch(startFailedCallback);
+    }
+
+    function closeModal() {
+        openModal = false;
+        if (html5QrCode) {
+            html5QrCode.stop();
+        }
     }
 
     function parseConnectId(text) {
