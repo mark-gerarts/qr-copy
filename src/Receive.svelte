@@ -1,10 +1,25 @@
 <script>
     import { connection, connectionState, ConnectionState } from "./store.js";
     import { fade } from "svelte/transition";
+    import { onMount } from "svelte";
 
     let copied = false;
     let receivedText;
     let receivedFiles = [];
+
+    // The following stuff is to show a "scroll to bottom" button when the user
+    // receives data. Might be able to move it to separate component?
+    let y;
+    let receiveElement;
+    let showScrollToBottom;
+
+    $: receivedData = receivedText || receivedFiles.length > 0;
+    $: showScrollToBottom =
+        receiveElement && receivedData && !isReceiveVisible(y);
+
+    onMount(() => {
+        receiveElement = document.getElementById("receive-anchor");
+    });
 
     connectionState.subscribe((value) => {
         if (value !== ConnectionState.connected) {
@@ -39,11 +54,30 @@
             copied = false;
         }, 300);
     }
+
+    function isReceiveVisible(y) {
+        const rect = receiveElement.getBoundingClientRect();
+
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <=
+                (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <=
+                (window.innerWidth || document.documentElement.clientWidth)
+        );
+    }
+
+    function scrollToReceive() {
+        receiveElement.scrollIntoView({ behavior: "smooth" });
+    }
 </script>
+
+<svelte:window bind:scrollY={y} />
 
 <h2 class="text-center">Receive</h2>
 
-<h5>
+<h5 id="receive-anchor">
     <figure class="avatar text-center bg-primary py-1">
         <i class="icon icon-download" />
     </figure>
@@ -87,6 +121,17 @@
     <p class="text-gray">You have not received any data yet.</p>
 {/if}
 
+{#if showScrollToBottom}
+    <div class="scroll-to-receive" on:click={scrollToReceive}>
+        <figure
+            class="avatar avatar-lg py-2 bg-primary text-center badge"
+            data-badge="!"
+        >
+            <i class="icon icon-arrow-down icon-2x" />
+        </figure>
+    </div>
+{/if}
+
 <style>
     .copy-wrapper {
         position: absolute;
@@ -116,5 +161,39 @@
         right: 0;
         top: -1.1rem;
         position: absolute;
+    }
+
+    .scroll-to-receive {
+        position: fixed;
+        right: 1rem;
+        bottom: 1rem;
+    }
+
+    .scroll-to-receive figure:hover {
+        cursor: pointer;
+    }
+
+    .scroll-to-receive figure {
+        box-shadow: 0 0 0 0 rgba(87, 85, 217, 1);
+        transform: scale(1);
+        animation: pulse 2s infinite;
+    }
+
+    /* https://www.florin-pop.com/blog/2019/03/css-pulse-effect/ <3 */
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(87, 85, 217, 0.7);
+        }
+
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+        }
+
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+        }
     }
 </style>

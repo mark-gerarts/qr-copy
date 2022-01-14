@@ -28,6 +28,12 @@ body {
     height: 42px;
 }
 
+@media only screen and (max-width: 840px) {
+    .hero-xs p {
+        margin: 0;
+    }
+}
+
 // Customize if needed...
 // @todo: only use specific components
 @import "../node_modules/spectre.css/src/spectre.scss";

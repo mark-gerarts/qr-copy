@@ -34,7 +34,5 @@ Other useful commands can be found in `package.json`.
 - [ ] ...or even automatic reconnect if possible
 - [ ] Tests
 - [ ] Only start sending text after a small delay
-- [ ] Make "Connected" box smaller on mobile
-- [ ] Scroll to "receive" box when files are received on mobile
-- [ ] Warning for big files?
+- [ ] Warning for big files
 - [ ] Add extended help
