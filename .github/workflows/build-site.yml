@@ -28,7 +28,6 @@ jobs:
 
           mv public public.new
           git checkout gh-pages
-          cp docs/CNAME public.new/CNAME
           rm -rf docs
           mv public.new docs
 
