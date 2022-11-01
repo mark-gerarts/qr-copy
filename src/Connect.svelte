@@ -9,7 +9,7 @@
     } from "./store.js";
     import IdInput from "./IdInput.svelte";
 
-    const BASE_URL = "https://qrcopy.de";
+    const BASE_URL = "https://mark-gerarts.github.io/qr-copy";
     const ID_LENGTH = 8;
 
     let myId = generateRandomId();

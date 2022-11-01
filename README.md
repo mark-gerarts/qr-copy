@@ -4,7 +4,7 @@
 
 Transfer text and files between devices using p2p communication.
 
-Live application: https://qrcopy.de
+Live application: https://mark-gerarts.github.io/qr-copy/
 
 ## Development
 
